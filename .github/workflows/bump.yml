@@ -1,0 +1,41 @@
+name: Bump cask on new release
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check for new release and update cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          LATEST="$(gh release view --repo sloppish/runx --json tagName -q '.tagName' | sed 's/^v//')"
+          CURRENT="$(grep 'version "' Casks/runx.rb | sed 's/.*"\(.*\)"/\1/')"
+
+          if [ "$LATEST" = "$CURRENT" ]; then
+            echo "Already up to date ($CURRENT)"
+            exit 0
+          fi
+
+          URL="https://github.com/sloppish/runx/releases/download/v${LATEST}/Runx-${LATEST}-macos.dmg"
+          SHA256="$(curl -sL "$URL" | shasum -a 256 | awk '{print $1}')"
+
+          sed -i '' "s/version \".*\"/version \"${LATEST}\"/" Casks/runx.rb
+          sed -i '' "s/sha256 \".*\"/sha256 \"${SHA256}\"/" Casks/runx.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/runx.rb
+          git commit -m "Update runx to ${LATEST}"
+          git push
