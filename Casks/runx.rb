@@ -1,6 +1,6 @@
 cask "runx" do
-  version "0.2.1"
-  sha256 "749dc9bfbe51f486b7b616f50116e1c45d695c236d77e64462b548c2e2e7e0e6"
+  version "0.2.2"
+  sha256 "425b1ebd9fe92e720576d381ea187be14efbc29a9d7df853ed3663aae89a7a91"
 
   url "https://github.com/sloppish/runx/releases/download/v#{version}/Runx-#{version}-macos.dmg"
   name "Runx"
